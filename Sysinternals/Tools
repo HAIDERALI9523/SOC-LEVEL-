@@ -1,3 +1,60 @@
 If you wish to download a tool or two but not the entire suite, you can navigate to the Sysinternals Utilities Index page, https://docs.microsoft.com/en-us/sysinternals/downloads/, and download the tool(s).
 If you know which tool you want to download, then this is fine. The tools are listed in alphabetical order are not separated by categories.
 
+LIVE USES#
+Per the Sysinternals website, "Sysinternals Live is a service that enables you to execute Sysinternals tools directly from the Web without hunting for and manually downloading them. 
+Simply enter a tool's Sysinternals Live path into Windows Explorer or a command prompt as live.sysinternals.com/<toolname> or \\live.sysinternals.com\tools\<toolname>."
+
+PS C:\Users\Administrator> get-service webclient
+
+Status   Name               DisplayName
+------   ----               -----------
+Stopped  WebClient          webclient
+
+
+PS C:\Users\Administrator> control.exe /name Microsoft.NetworkAndSharingCenter
+PS C:\Users\Administrator> Install-WindowsFeature WebDAV-Redirector -Restart
+
+Success Restart Needed Exit Code      Feature Result
+------- -------------- ---------      --------------
+True    No             NoChangeNeeded {}
+
+
+PS C:\Users\Administrator> Get-WindowsFeature WebDAV-Redirector | Format-Table -Autosize
+
+Display Name          Name              Install State
+------------          ----              -------------
+[X] WebDAV Redirector WebDAV-Redirector     Installed
+
+
+PS C:\Users\Administrator>
+
+##RUN THE TOOL FROM CMD LINE
+\\live.sysinternals.com\tools\procmon.exe
+
+##Sigcheck##
+https://learn.microsoft.com/en-us/sysinternals/downloads/sigcheck
+"Sigcheck is a command-line utility that shows file version number, timestamp information, and digital signature details, including certificate chains. 
+It also includes an option to check a file’s status on VirusTotal, a site that performs automated file scanning against over 40 antivirus engines, and an option to upload a file for scanning." (official definition)
+
+##Streams##
+
+"The NTFS file system provides applications the ability to create alternate data streams of information. 
+By default, all data is stored in a file's main unnamed data stream, but by using the syntax 'file:stream', you are able to read and write to alternates." (official definition)
+#cmd#
+streams file.txt
+notepad ./file.txt:ads.txt
+
+##SDelete##
+
+"SDelete is a command line utility that takes a number of options. In any given use, it allows you to delete one or more files and/or directories, or to cleanse the free space on a logical disk."
+
+
+##Networking Utilities##
+TCPView
+
+"TCPView is a Windows program that will show you detailed listings of all TCP and UDP endpoints on your system, including the local and remote addresses and state of TCP connections.
+ On Windows Server 2008, Vista, and XP, TCPView also reports the name of the process that owns the endpoint. TCPView provides a more informative and conveniently presented subset of the Netstat program that ships with Windows.
+The TCPView download includes Tcpvcon, a command-line version with the same functionality." (official definition)
+
+
