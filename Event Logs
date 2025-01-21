@@ -1,0 +1,254 @@
+EVENT VIEWER 
+The Windows Event Logs are not text files that can be viewed using a text editor. However, the raw data can be translated into XML using the Windows API.
+The events in these log files are stored in a proprietary binary format with a .evt or .evtx extension. 
+The log files with the .evtx file extension typically reside in C:\Windows\System32\winevt\Logs.
+
+
+Elements of a Windows Event Log
+Event logs are crucial for troubleshooting any computer incident and help understand the situation and how to remediate the incident. 
+To get this picture well, you must first understand the format in which the information will be presented. Windows offers a standardized means of relaying this system information.
+
+First, we need to know what elements form event logs in Windows systems. These elements are:
+System Logs: Records events associated with the Operating System segments. They may include information about hardware changes, device drivers, system changes, and other activities related to the device.
+Security Logs: Records events connected to logon and logoff activities on a device. The system's audit policy specifies the events. The logs are an excellent source for analysts to investigate attempted or successful unauthorized activity.
+Application Logs: Records events related to applications installed on a system. The main pieces of information include application errors, events, and warnings.
+Directory Service Events: Active Directory changes and activities are recorded in these logs, mainly on domain controllers.
+File Replication Service Events: Records events associated with Windows Servers during the sharing of Group Policies and logon scripts to domain controllers, from where they may be accessed by the users through the client servers.
+DNS Event Logs: DNS servers use these logs to record domain events and to map out
+Custom Logs: Events are logged by applications that require custom data storage. This allows applications to control the log size or attach other parameters, such as ACLs, for security purposes.
+
+
+
+wevtutil.exe###
+ wevtutil.exe first. Per Microsoft, the wevtutil.exe tool "enables you to retrieve information about event logs and publishers.
+You can also use this command to install and uninstall event manifests, to run queries, and to export, archive, and clear logs."
+As with any tool, access its help files to find out how to run the tool. An example of a command to do this is wevtutil.exe /?. 
+wevtutil COMMAND [ARGUMENT [ARGUMENT] ...] [/OPTION:VALUE [/OPTION:VALUE] ...]
+
+Commands:
+
+el | enum-logs          List log names.
+gl | get-log            Get log configuration information.
+sl | set-log            Modify configuration of a log.
+ep | enum-publishers    List event publishers.
+gp | get-publisher      Get publisher configuration information.
+im | install-manifest   Install event publishers and logs from manifest.
+um | uninstall-manifest Uninstall event publishers and logs from manifest.
+qe | query-events       Query events from a log or log file.
+gli | get-log-info      Get log status information.
+epl | export-log        Export a log.
+al | archive-log        Archive an exported log.
+cl | clear-log          Clear a log.
+
+
+ #for more info#
+docs.microsoft.com. 
+
+
+#CMD#
+wevtutil el |Measure-Object
+
+PS C:\Users\Administrator> wevtutil el |Measure-Object
+
+
+Count    : 1071
+Average  :
+Sum      :
+Maximum  :
+Minimum  :
+Property :
+
+ wevtutil qe /?
+Read events from an event log, log file or using structured query.
+Usage:
+wevtutil { qe | query-events } <PATH> [/OPTION:VALUE [/OPTION:VALUE] ...]
+query.
+
+Usage:
+
+wevtutil { qe | query-events } <PATH> [/OPTION:VALUE [/OPTION:VALUE] ...]
+
+<PATH>
+By default, you provide a log name for the <PATH> parameter. However, if you use
+the /lf option, you must provide the path to a log file for the <PATH> parameter.
+If you use the /sq parameter, you must provide the path to a file containing a
+structured query.
+
+Options:
+
+You can use either the short (for example, /f) or long (for example, /format)
+version of the option names. Options and their values are not case-sensitive.
+
+/{lf | logfile}:[true|false]
+If true, <PATH> is the full path to a log file.
+
+/{sq | structuredquery}:[true|false]
+If true, <PATH> is the full path to a file that contains a structured query.
+
+/{q | query}:VALUE
+VALUE is an XPath query to filter events read. If not specified, all events will
+be returned. This option is not available when /sq is true.
+
+/{bm | bookmark}:VALUE
+VALUE is the full path to a file that contains a bookmark from a previous query.
+
+/{sbm | savebookmark}:VALUE
+VALUE is the full path to a file in which to save a bookmark of this query. The
+file extension should be .xml.
+
+/{rd | reversedirection}:[true|false]
+Event read direction. If true, the most recent events are returned first.
+
+/{f | format}:[XML|Text|RenderedXml]
+The default value is XML. If Text is specified, prints events in an
+easy to read text format, rather than in XML format. If RenderedXml, prints
+events in XML format with rendering information. Note that printing events in
+Text or RenderedXml formats is slower than printing in XML format.
+
+/{l | locale}:VALUE
+VALUE is a locale string to print event text in a specific locale. Only available
+when printing events in text format using the /f option.
+
+/{c | count}:<n>
+Maximum number of events to read.
+
+/{e | element}:VALUE
+When outputting event XML, include a root element to produce well-formed XML.
+VALUE is the string you want within the root element. For example, specifying
+/e:root would result in output XML with the root element pair <root></root>.
+
+
+Example:
+
+The following example displays the three most recent events from the Application
+log in text format.
+
+wevtutil qe Application /c:3 /rd:true /f:text
+PS C:\Users\Administrator>  wevtutil qe Application /c:3 /rd:true /f:text
+Event[0]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2025-01-21T04:25:31.088
+  Event ID: 9027
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: WIN-1O0UJBNP9G7
+  Description:
+The Desktop Window Manager has registered the session port.
+
+#Get-WinEvent#
+On to the next tool. This is a PowerShell cmdlet called Get-WinEvent. Per Microsoft, the Get-WinEvent cmdlet "gets events from event logs and event tracing log files on local and remote computers.
+" It provides information on event logs and event log providers. Additionally, 
+ you can combine numerous events from multiple sources into a single command and filter using XPath queries, structured XML queries, and hash table queries.
+
+Note: The Get-WinEvent cmdlet replaces the Get-EventLog cmdlet. 
+ Get-Help information online at docs.microsoft.com. 
+
+PS C:\Users\Administrator> Get-WinEvent -ListLog *
+
+LogMode   MaximumSizeInBytes RecordCount LogName
+-------   ------------------ ----------- -------
+Circular            20971520        1298 Application
+Circular            20971520           0 HardwareEvents
+Circular             1052672           0 Internet Explorer
+Circular            20971520           0 Key Management Service
+Circular            20971520       28236 Security
+Circular            20971520       24335 System
+Circular            15728640         822 Windows PowerShell
+Circular            20971520             ForwardedEvents
+Circular            10485760           0 Microsoft-AppV-Client/Admin
+Circular            10485760           0 Microsoft-AppV-Client/Operational
+
+
+Get-WinEvent -ListProvider *
+
+Name     : .NET Runtime
+LogLinks : {Application}
+Opcodes  : {}
+Tasks    : {}
+
+Name     : .NET Runtime Optimization Service
+LogLinks : {Application}
+Opcodes  : {}
+Tasks    : {}
+
+PS C:\Users\Administrator> Get-WinEvent -LogName Application | Where-Object { $_.ProviderName -Match 'WLMS' }
+
+   ProviderName: WLMS
+
+TimeCreated                     Id LevelDisplayName Message
+-----------                     -- ---------------- -------
+12/21/2020 4:23:47 AM          100 Information
+12/18/2020 3:18:57 PM          100 Information
+12/15/2020 8:50:22 AM          100 Information
+12/15/2020 8:18:34 AM          100 Information
+12/15/2020 7:48:34 AM          100 Information
+12/14/2020 6:42:18 PM          100 Information
+12/14/2020 6:12:18 PM          100 Information
+12/14/2020 5:39:08 PM          100 Information
+12/14/2020 5:09:08 PM          100 Information
+
+When working with large event logs, per Microsoft, it's inefficient to send objects down the pipeline to a Where-Object command. The use of the Get-WinEvent cmdlet's FilterHashtable parameter is recommended to filter event logs. We can achieve the same results as above by running the following command:
+
+Powershell
+- Get-WinEvent Filters
+Get-WinEvent -FilterHashtable @{
+  LogName='Application' 
+  ProviderName='WLMS' 
+}
+
+LINK FOR MORE INFO
+https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-winevent?view=powershell-5.1
+
+PS C:\Users\Administrator> Get-WinEvent -ListProvider *Powershell*
+
+
+Name     : PowerShell
+LogLinks : {Windows PowerShell}
+Opcodes  : {}
+Tasks    : {Engine Health
+           , Command Health
+           , Provider Health
+           , Engine Lifecycle
+           ...}
+
+Name     : Microsoft-Windows-PowerShell
+LogLinks : {Microsoft-Windows-PowerShell/Operational, Microsoft-Windows-PowerShell/Analytic,
+           Microsoft-Windows-PowerShell/Debug, Microsoft-Windows-PowerShell/Admin}
+Opcodes  : {win:Start, win:Stop, Open, Close...}
+Tasks    : {CreateRunspace, ExecuteCommand, Serialization, Powershell-Console-Startup...}
+
+Name     : Microsoft-Windows-PowerShell-Desire
+
+
+PS C:\Users\Administrator> (Get-WinEvent -ListProvider Microsoft-Windows-PowerShell).Events | Format-Table Id, Description | Measure-Object
+
+
+Count    : 192
+Average  :
+Sum      :
+Maximum  :
+Minimum  :
+Property :
+
+
+#XPath Queries#
+Now we will examine filtering events with XPath. The W3C created XPath, or XML Path Language in full, to provide a standard syntax and semantics for addressing parts of an XML document and manipulating strings, numbers, and booleans. The Windows Event Log supports a subset of XPath 1.0. 
+
+Below is an example XPath query along with its explanation:
+
+XPath Query
+// The following query selects all events from the channel or log file where the severity level is less than or equal to 3 and the event occurred in the last 24 hour period. 
+XPath Query: *[System[(Level <= 3) and TimeCreated[timediff(@SystemTime) <= 86400000]]]
+Based on docs.microsoft.com, an XPath event query starts with '*' or 'Event'. The above code block confirms this. But how do we construct the rest of the query? Luckily the Event Viewer can help us with that. 
+
+ Get-WinEvent -LogName Application -FilterXPath '*'
+Now we work our way down the XML tree. The next tag is System.
+
+Let's add that. Now our command is: Get-WinEvent -LogName Application -FilterXPath '*/System/'
+
+Note: Its best practice to explicitly use the keyword System but you can use an * instead as with the Event keyword. The query -FilterXPath '*/*' is still valid. 
