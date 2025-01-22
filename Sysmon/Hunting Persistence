@@ -1,0 +1,9 @@
+Persistence Overview
+
+Persistence is used by attackers to maintain access to a machine once it is compromised. 
+There is a multitude of ways for an attacker to gain persistence on a machine. 
+We will be focusing on registry modification as well as startup scripts. 
+We can hunt persistence with Sysmon by looking for File Creation events as well as Registry Modification events.
+The SwiftOnSecurity configuration file does a good job of specifically targeting persistence and techniques used.
+You can also filter by the Rule Names in order to get past the network noise and focus on anomalies within the event logs. 
+
