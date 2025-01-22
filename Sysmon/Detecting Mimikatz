@@ -1,0 +1,14 @@
+Detecting Mimikatz Overview
+
+Mimikatz is well known and commonly used to dump credentials from memory along with other Windows post-exploitation activity. 
+Mimikatz is mainly known for dumping LSASS. We can hunt for the file created, execution of the file from an elevated process,
+creation of a remote thread, and processes that Mimikatz creates. Anti-Virus will typically pick up Mimikatz as the signature
+is very well known but it is still possible for threat actors to obfuscate or use droppers to get the file onto the device. 
+For this hunt, we will be using a custom configuration file to minimize network noise and focus on the hunt. 
+
+Hunting Abnormal LSASS Behavior
+
+We can use the ProcessAccess event ID to hunt for abnormal LSASS behavior. This event along with LSASS would show potential LSASS abuse which usually connects back to Mimikatz some other kind of credential dumping tool.
+Look below for more detail on hunting with these techniques.
+
+PowerShell Cmd: Get-WinEvent -Path C:\Users\THM-Analyst\Desktop\Scenarios\Practice\Hunting_Mimikatz.evtx -FilterXPath '*/System/EventID=10 and */EventData/Data[@Name="TargetImage"] and */EventData/Data="C:\Windows\system32\lsass.exe"'
