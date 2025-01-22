@@ -1,0 +1,9 @@
+Evasion Techniques Overview
+
+There are a number of evasion techniques used by malware authors to evade both anti-virus and detections.
+Some examples of evasion techniques are Alternate Data Streams, Injections, Masquerading, Packing/Compression,
+Recompiling, Obfuscation, Anti-Reversing Techniques. In this task, we will be focusing on Alternate Data Streams and Injections.
+Alternate Data Streams are used by malware to hide its files from normal inspection by saving the file in a different stream apart from $DATA.
+Sysmon comes with an event ID to detect newly created and accessed streams allowing us to quickly detect and hunt malware that uses ADS.
+Injection techniques come in many different types: Thread Hijacking, PE Injection, DLL Injection, and more.
+In this room, we will be focusing on DLL Injection and backdooring DLLs. This is done by taking an already used DLL that is used by an application and overwriting or including your malicious code within the DLL.
