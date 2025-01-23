@@ -1,0 +1,102 @@
+   Osquery is an open-source agent created by Facebook in 2014. It converts the operating system into a relational database. 
+  It allows us to ask questions from the tables using SQL queries, like returning the list of running processes, a user account
+   created on the host, and the process of communicating with certain suspicious domains. It is widely used by Security Analysts, 
+   Incident Responders, Threat Hunters, etc. Osquery can be installed on multiple platforms: Windows, Linux, macOS, and FreeBSD.
+
+  Interactive Mode:
+  Click on the powershell terminal pinned at the taskbar and enter osqueryi to enter the interactive mode of osquery.
+  CMD: osqueryi to interact with osquery
+  .help   for help
+  SQL QUERY SYNTAX: select column1, column2, column3 from table;
+
+osquery> .table process
+  => process_memory_map
+  => process_open_sockets
+  => processes
+osquery>
+
+osquery> .schema processes
+CREATE TABLE processes(`pid` BIGINT, `name` TEXT, `path` TEXT, `cmdline` TEXT, `state` TEXT, `cwd` TEXT, `root` TEXT, `uid` BIGINT, `gid` BIGINT, `
+
+LInk:
+https://osquery.io/schema/5.5.1/
+
+Breakdown
+
+Let's break down the important information we could find in this schema documentation:
+
+A dropdown lists various versions of Osquery. Choose the version of Osquery you wish to see schema tables for.
+The number of tables within the selected version of Osquery. (In the above image, 106 tables are available).
+The list of tables is listed in alphabetical order for the selected version of Osquery. This is the same result we get when we use the .table command in the interactive mode.
+The name of the table and a brief description.
+A detailed chart showing each table's column, type, and description.
+Information to which Operating System the table applies. (In the above image, the account_policy_data table is available only for macOS)
+A dropdown menu to select the Operating System of choice. We can choose multiple Operating Systems, which will display the tables available for those Operating systems.
+
+Creating SQL queries
+
+Query: SELECT * FROM programs LIMIT 1;
+osquery> select * from programs limit 1;
++-------------------+---------+------------------+----------------------------------------------------------------------------+----------+---------------------+------------------------------------------------------+--------------+----------------------------------------+
+| name              | version | install_location | install_source                                                             | language | publisher           | uninstall_string                                     | install_date | identifying_number                     |
++-------------------+---------+------------------+----------------------------------------------------------------------------+----------+---------------------+------------------------------------------------------+--------------+----------------------------------------+
+| aws-cfn-bootstrap | 2.0.5   |                  | C:\ProgramData\Package Cache\{2C9F7E98-B055-4344-B8E4-58996F4A3B00}v2.0.5\ | 1033     | Amazon Web Services | MsiExec.exe /X{2C9F7E98-B055-4344-B8E4-58996F4A3B00} | 20210311     | {2C9F7E98-B055-4344-B8E4-58996F4A3B00} |
++-------------------+---------+------------------+----------------------------------------------------------------------------+----------+---------------------+------------------------------------------------------+--------------+----------------------------------------+
+osquery>
+
+Query: SELECT name, version, install_location, install_date from programs limit 1;
+
+
+Count:
+To see how many programs or entries in any table are returned, we can use the count() function, as shown below:
+Query: SELECT count(*) from programs;
+
+WHERE Clause
+Optionally, you can use a WHERE clause to narrow down the list of results returned based on specified criteria. The following query will first get the user table and only display the result for the user James, as shown below:
+Query: SELECT * FROM users WHERE username='James';
+
+he equal sign is not the only filtering option in a WHERE clause. Below are filtering operators that can be used in a WHERE clause:
+= [equal]
+<>  [not equal]
+>, >= [greater than, greater than, or equal to]
+<, <= [less than or less than or equal to] 
+BETWEEN [between a range]
+LIKE [pattern wildcard searches]
+% [wildcard, multiple characters]
+_ [wildcard, one character]
+
+Matching Wildcard Rules
+Below is a screenshot from the Osquery documentation showing examples of using wildcards when used in folder structures:
+%: Match all files and folders for one level.
+%%: Match all files and folders recursively.
+%abc: Match all within-level ending in "abc".
+abc%: Match all within-level starting with "abc".
+
+Matching Examples
+/Users/%/Library: Monitor for changes to every user's Library folder, but not the contents within.
+/Users/%/Library/: Monitor for changes to files within each Library folder, but not the contents of their subdirectories.
+/Users/%/Library/%: Same, changes to files within each Library folder.
+/Users/%/Library/%%: Monitor changes recursively within each Library.
+/bin/%sh: Monitor the bin directory for changes ending in sh.
+
+
+JOIN Queries 
+Query1: select uid, pid, name, path from processes;
+Query2: select uid, username, description from users;
+Joined Query: select p.pid, p.name, p.path, u.username from processes p JOIN users u on u.uid=p.uid LIMIT 10;
+
+Link:
+https://osquery.readthedocs.io/en/stable/introduction/sql/
+
+
+Query: select path, key, name from registry where key = 'HKEY_USERS';
+Query: select * from ie_extensions;
+Query: select name,install_location from programs where name LIKE '%wireshark%';
+
+
+
+
+
+
+
+
