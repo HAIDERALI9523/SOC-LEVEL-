@@ -1,0 +1,28 @@
+Kibana is a web-based visualisation tool for exploring data stored in Elasticsearch. It can be used to create interactive dashboards and charts that help users to understand data
+
+Elasticsearch is a distributed, scalable, and highly available search engine. It is used to store and index data so that it can be quickly searched and analysed.
+https://www.elastic.co/guide/en/logstash/8.1/filter-plugins.html
+
+Logstash
+
+Logstash is a data processing engine used to take the data from different sources, apply the filter on it or normalize it,
+and then send it to the destination which could be Kibana or a listening port. A logstash configuration file is divided into three parts, as shown below.
+
+Beats
+
+Beats is a host-based agent known as Data-shippers that is used to ship/transfer data from the endpoints to elasticsearch. 
+Each beat is a single-purpose agent that sends specific data to the elasticsearch. All available beats are shown below.
+
+Kibana
+
+Kibana is a web-based data visualization that works with elasticsearch to analyze, 
+investigate and visualize the data stream in real-time. It allows the users to create multiple visualizations and dashboards for better visibility—more on Kibana in the following tasks.
+
+
+Kibana Discover tab is a place where analyst spends most of their time. This tab shows the ingested logs (also known as documents), the search bar, normalized fields, etc. Here analysts can perform the following tasks:
+
+Search for the logs
+Investigate anomalies
+Apply filter based on
+search term
+Time period
