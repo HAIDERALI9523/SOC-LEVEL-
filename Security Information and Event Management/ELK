@@ -26,3 +26,54 @@ Investigate anomalies
 Apply filter based on
 search term
 Time period
+
+Logs (document): Each log here is also known as a single document containing information about the event. It shows the fields and values found in that document.
+Fields pane: Left panel of the interface shows the list of the fields parsed from the logs. We can click on any field to add the field to the filter or remove it from the search.
+Index Pattern: Let the user select the index pattern from the available list.
+Search bar: A place where the user adds search queries / applies filters to narrow down the results.
+Time Filter: We can narrow down results based on the time duration. This tab has many options to select from to filter/limit the logs.
+Time Interval: This chart shows the event counts over time.
+TOP Bar: This bar contains various options to save the search, open the saved searches, share or save the search, etc.
+Each important element found in the Discover tab is briefly explained below:
+
+WILD CARD
+
+KQL allows the wild card * to match parts of the term/word. Let's find out how to use this wild card in the search query.
+
+Search Query: United*
+
+We have used the wildcard with the term United to return all the results containing the term United and any other term. If we had logs with the term United NationsIt would also have returned those as a result of this wildcard.
+
+Logical Operators (AND | OR | NOT)
+
+KQL also allows users to utilize the logical operators in the search query. Let us see the examples below.
+
+1- OR Operator
+
+We will use the OR operator to show logs that contain either the United States or England.
+
+Search Query: "United States"    OR     "England"
+
+2- AND Operator
+
+Here, we will use AND Operator to create a search that will return the logs that contain the terms "UNITED STATES" AND "Virginia."
+
+Search Query: "United States" AND "Virginia"
+
+- NOT Operator
+
+Similarly, we can use NOT Operator to remove the particular term from the search results. This search query will show the logs from the United States, including all states but ignoring Florida.
+
+Search Query: "United States" AND NOT ("Florida")
+
+
+
+Field-based search
+
+In the Field-based search, we will provide the field name and the value we are looking for in the logs. This search has a special syntax as FIELD : VALUE. It uses a colon : as a separator between the field and the value. Let's look at a few examples.
+
+Search Query: Source_ip : 238.163.231.224    AND     UserName : Suleman
+
+Explanation: We are telling Kibana to display all the documents in which the field Source_ip contains the value 19.112.190.54 and UserName as Suleman as shown below.
+
+https://www.elastic.co/guide/en/kibana/7.17/kuery-query.html
