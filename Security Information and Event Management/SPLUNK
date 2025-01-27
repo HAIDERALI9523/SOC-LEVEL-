@@ -1,0 +1,260 @@
+Splunk is a platform for collecting, storing, and analysing machine data. 
+It provides various tools for analysing data, including search, correlation, and visualisation.
+It is a powerful tool that organisations of all sizes can use to improve their IT operations and security posture.
+
+Splunk Forwarder
+
+Splunk Forwarder is a lightweight agent installed on the endpoint intended to be monitored,
+and its main task is to collect the data and send it to the Splunk instance. It does not affect the endpoint's performance as it takes very few resources to process. Some of the key data sources are:
+
+Web server generating web traffic.
+Windows machine generating Windows Event Logs, PowerShell, and Sysmon data.
+Linux host generating host-centric logs.
+Database generating DB connection requests, responses, and errors.
+
+Splunk Indexer
+Splunk Indexer plays the main role in processing the data it receives from forwarders.
+It takes the data, normalizes it into field-value pairs, determines the datatype of the data, and stores them as events. Processed data is easy to search and analyze.
+
+Search Head
+Splunk Search Head is the place within the Search & Reporting App where users can search the indexed logs as shown below. 
+When the user searches for a term or uses a Search language known as Splunk Search Processing Language, the request is sent to the indexer and the relevant events are returned in the form of field-value pairs.
+
+LINK FOR SPLUNK:
+https://docs.splunk.com/Documentation/Splunk/8.1.2/SearchTutorial/NavigatingSplunk
+
+As shown above, it has a total of 5 steps to successfully upload the data.
+
+Select Source -> Where we select the Log source.
+Select Source Type -> Select what type of logs are being ingested.
+Input Settings ->Select the index where these logs will be dumped and hostName to be associated with the logs.
+Review -> Review all the gif
+Done -> Final step, where the data is uploaded successfully and ready to be analyzed.
+
+
+This room covers an incident Handling scenario using Splunk. 
+An incident from a security perspective is "Any event or action, that has a negative consequence on the security of a user/computer or an organization is considered a security incident."
+Below are a few of the events that would negatively affect the environment when they occurred:
+
+Crashing the system
+Execution of an unwanted program
+Access to sensitive information from an unauthorized user
+A Website being defaced by the attacker
+The use of USB devices when there is a restriction in usage is against the company's policy
+Learning ObjectiveAnalyst standing with magnifying glass
+Learn how to leverage OSINT sites during an investigation
+How to map Attacker's activities to Cyber Kill Chain Phases
+How to utilize effective Splunk searches to investigate logs
+Understand the importance of host-centric and network-centric log sources
+
+
+
+Incident Handling - Life Cycle:
+1. Preparation
+The preparation phase covers the readiness of an organization against an attack. That means documenting the requirements, defining the policies, incorporating the security controls to monitor like EDR / SIEM / IDS / IPS, etc. It also includes hiring/training the staff.
+
+2. Detection and Analysis
+The detection phase covers everything related to detecting an incident and the analysis process of the incident. This phase covers getting alerts from the security controls like SIEM/EDR investigating the alert to find the root cause. This phase also covers hunting for the unknown threat within the organization.
+
+3. Containment, Eradication, and Recovery
+This phase covers the actions needed to prevent the incident from spreading and securing the network. It involves steps taken to avoid an attack from spreading into the network, isolating the infected host, clearing the network from the infection traces, and gaining control back from the attack.
+
+
+4. Post-Incident Activity / Lessons Learnt
+This phase includes identifying the loopholes in the organization's security posture, which led to an intrusion, and improving so that the attack does not happen next time. The steps involve identifying weaknesses that led to the attack, adding detection rules so that similar breach does not happen again, and most importantly, training the staff if required.
+
+
+We will follow the Cyber kill Chain Model and map the attacker's activity in each phase during this Investigation. When required, we will also utilize Open Source Intelligence (OSINT) and other findings to fill the gaps in the kill chain. It is not necessary to follow this sequence of the phases while investigating.
+
+Reconnaissance
+Weaponization
+Delivery
+Exploitation
+Installation
+Command & Control
+Actions on Objectives
+
+Interesting log Sources
+
+Some of the interesting log sources that will help us in our Investigation are:
+Log Sources
+Details
+wineventlog
+It contains Windows Event logs
+winRegistry
+It contains the logs related to registry creation / modification / deletion etc.
+XmlWinEventLog
+It contains the sysmon event logs. It is a very important log source from an investigation point of view.
+fortigate_utm
+It contains Fortinet Firewall logs
+iis
+It contains IIS web server logs
+Nessus:scan
+It contains the results from the Nessus vulnerability scanner.
+Suricata
+It contains the details of the alerts from the Suricata IDS. This log source shows which alert was triggered and what caused the alert to get triggered— a very important log source for the Investigation.
+stream:http
+It contains the network flow related to http traffic.
+stream: DNS
+It contains the network flow related to DNS traffic.
+stream:icmp
+It contains the network flow related to icmp traffic.
+
+Reconnaissance PhaseImage representing Reconnicance
+Reconnaissance is an attempt to discover and collect information about a target. It could be knowledge about the system in use, the web application, employees or location, etc
+We will start our analysis by examining any reconnaissance attempt against the webserver imreallynotbatman.com. From an analyst perspective, where do we first need to look? If we look at the available log sources, we will find some log sources covering the network traffic,
+which means all the inbound communication towards our web server will be logged into the log source that contains the web traffic. 
+Let's start by searching for the domain in the search head and see which log source includes the traces of our domain.
+
+Search Query: index=botsv1 imreallynotbatman.com
+
+Search Query explanation: We are going to look for the event logs in the index "botsv1" which contains the term imreallynotbatman.com
+
+
+Here we have searched for the term imreallynotbatman.com in the index botsv1. In the sourcetype field, we saw that the following log sources contain the traces of this search term.
+
+Suricata
+stream:http
+fortigate_utm
+iis
+From the name of these log sources, it is clear what each log source may contain. Every analyst may have a different approach to investigating a scenario. 
+Our first task is to identify the IP address attempting to perform reconnaissance activity on our web server. It would be obvious to look at the web traffic
+coming into the network. We can start looking into any of the logs mentioned above sources.
+
+Let us begin looking at the log source stream:http, which contains the http traffic logs, and examine the src_ip field from the left panel. Src_ip field contains the source IP address it finds in the logs.
+
+Search Query: index=botsv1 imreallynotbatman.com sourcetype=stream:http
+Search Query Explanation: This query will only look for the term  imreallynotbatman.comin the stream:http log source.
+
+
+Validate the IP that is scanning
+
+So what do we need to do to validate the scanning attempt? Simple, dig further into the weblogs. Let us narrow down the result, 
+look into the suricata logs, and see if any rule is triggered on this communication.
+Search Query: index=botsv1 imreallynotbatman.com src=40.80.148.42 sourcetype=suricata
+
+Search Query Explanation: This query will show the logs from the suricata log source that are detected/generated from the source IP 40.80.248.42
+
+nnection: Keep-alive\r\nAccept-Encoding: gzip,deflate\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.21 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.21\r\nAcunetix-Product: WVS/10.0 (Acunetix Web Vulnerability Scanner - Free Edition)\r\nAcunetix-Scanning-agreement: Third Party Scanning PROHIBITED\r\nAcunetix-User-agreement: http://www.acunetix.com/wvs/disc.htm\r\nAccept: */*\r\n\r\n","src_ip":"40.80.148.42","src_mac":"08:5B:0E:93:92:AF","src_port":49465,"status":303,"time_taken":1070126,"transport":"tcp","uri":"/joomla/index.php/component/search/","uri_path":"/joomla/index.php/component/search/"}
+Show syntax highlighted
+
+index=botsv1 imreallynotbatman.com sourcetype="stream:http" | spath c_ip | search c_ip="40.80.148.42" uri="/joomla/index.php/component/search/"
+
+Exploitation Phase:
+The attacker needs to exploit the vulnerability to gain access to the system/server.
+
+In this task, we will look at the potential exploitation attempt from the attacker against our web server and see if the attacker got successful in exploiting or not.
+
+To begin our investigation, let's note the information we have so far:
+
+We found two IP addresses from the reconnaissance phase with sending requests to our server.
+One of the IPs 40.80.148.42 was seen attempting to scan the server with IP 192.168.250.70.
+The attacker was using the web scanner Acunetix for the scanning attempt.
+Count
+
+Let's use the following search query to see the number of counts by each source IP against the webserver.
+
+Search Query:index=botsv1 imreallynotbatman.com sourcetype=stream* | stats count(src_ip) as Requests by src_ip | sort - Requests
+
+Query Explanation: This query uses the stats function to display the count of the IP addresses in the field src_ip.
+
+Now we will narrow down the result to show requests sent to our web server, which has the IP 192.168.250.70
+
+Search Query: index=botsv1 sourcetype=stream:http dest_ip="192.168.250.70"
+
+Query Explanation: This query will look for all the inbound traffic towards IP 192.168.250.70.
+
+To see what kind of traffic is coming through the POST requests, we will narrow down on the field http_method=POST as shown below:
+Search Query: index=botsv1 sourcetype=stream:http dest_ip="192.168.250.70" http_method=POST
+
+
+
+﻿The result in the src_ip field shows two IP addresses sending all the POST requests to our server.
+
+Interesting fields: In the left panel, we can find some interesting fields containing valuable information. Some of the fields are:
+
+src_ip
+form_data
+http_user_agent
+uri
+
+
+The term Joomla is associated with the webserver found in a couple of fields like uri, uri_path, http_referrer, etc. This means our webserver is using Joomla CMS (Content Management Service) in the backend.
+A little search on the internet for the admin login page of the Joomla CMS will show as -> /joomla/administrator/index.php
+It is important because this uri contains the login page to access the web portal therefore we will be examining the traffic coming into this admin panel for a potential brute-force attack.
+Reference: https://www.joomla.org/administrator/index.php
+
+We can narrow down our search to see the requests sent to the login portal using this information.
+Search query: index=botsv1 imreallynotbatman.com sourcetype=stream:http dest_ip="192.168.250.70"  uri="/joomla/administrator/index.php"
+Query Explanation: We are going to add uri="/joomla/administrator/index.php" in the search query to show the traffic coming into this URI.
+
+
+form_data The field contains the requests sent through the form on the admin panel page, which has a login page. We suspect the attacker may have tried multiple credentials in an attempt to gain access to the admin panel. To confirm, we will dig deep into the values contained within the form_data field, as shown below:
+Search Query: index=botsv1 sourcetype=stream:http dest_ip="192.168.250.70" http_method=POST uri="/joomla/administrator/index.php" | table _time uri src_ip dest_ip form_data
+Query Explanation: We will add this -> | table _time uri src_ip dest_ip form_data to create a table containing important fields as shown below: 
+
+
+
+If we keep looking at the results, we will find two interesting fields username that includes the single username admin in all the events and another field passwd that contains multiple passwords in it, which shows the attacker from the IP 23.22.63.114 Was trying to guess the password by brute-forcing and attempting numerous passwords.
+The time elapsed between multiple events also suggests that the attacker was using an automated tool as various attempts were observed in a short time.
+
+Extracting Username and Passwd Fields using Regex
+Looking into the logs, we see that these fields are not parsed properly. Let us use Regex in the search to extract only these two fields and their values from the logs and display them.
+We can display only the logs that contain the username and passwd values in the form_data field by adding form_data=*username*passwd* in the above search.
+Search Query: index=botsv1 sourcetype=stream:http dest_ip="192.168.250.70" http_method=POST uri="/joomla/administrator/index.php" form_data=*username*passwd* | table _time uri src_ip dest_ip form_data
+It's time to use Regex (regular expressions) to extract all the password values found against the field passwd in the logs. To do so, Splunk has a function called rex. If we type it in the search head, it will show detail and an example of how to use it to extract the values.
+
+
+Now, let's use Regex.  rex field=form_data "passwd=(?<creds>\w+)" To extract the passwd values only. This will pick the form_data field and extract all the values found with the field. creds.
+Search Query:index=botsv1 sourcetype=stream:http dest_ip="192.168.250.70" http_method=POST form_data=*username*passwd* | rex field=form_data "passwd=(?<creds>\w+)"  | table src_ip creds
+We have extracted the passwords being used against the username admin on the admin panel of the webserver. If we examine the fields in the logs, we will find two values against the field http_user_agent as shown below:
+
+The first value clearly shows attacker used a python script to automate the brute force attack against our server. But one request came from a Mozilla browser. WHY? To find the answer to this query, let's slightly change to the about search query and add http_user_agent a field in the search head.
+Let's create a table to display key fields and values by appending -> | table _time src_ip uri http_user_agent creds in the search query as shown below.
+
+Search Query: index=botsv1 sourcetype=stream:http dest_ip="192.168.250.70" http_method=POST form_data=*username*passwd* | rex field=form_data "passwd=(?<creds>\w+)" |table _time src_ip uri http_user_agent creds
+
+
+index=botsv1 sourcetype=stream:http dest_ip="192.168.250.70" http_method=POST uri="/joomla/administrator/index.php"| table _time uri src_ip dest_ip form_data
+
+
+
+Once the attacker has successfully exploited the security of a system, he will try to install a backdoor or an application for persistence or to gain more control of the system. This activity comes under the installation phase.
+
+In the previous Exploitation phase, we found evidence of the webserver iamreallynotbatman.com getting compromised via brute-force attack by the attacker using the python script to automate getting the correct password. The attacker used the IP" for the attack and the IP to log in to the server. This phase will investigate any payload / malicious program uploaded to the server from any attacker's IPs and installed into the compromised server.
+
+To begin an investigation, we first would narrow down any http traffic coming into our server 192.168.250.70 containing the term ".exe." This query may not lead to the findings, but it's good to start from 1 extension and move ahead.
+
+Search Query: index=botsv1 sourcetype=stream:http dest_ip="192.168.250.70" *.exe
+
+
+With the search query in place, we are looking for the fields that could have some values of our interest. As we could not find the file name field, we looked at the missing fields and saw a field. part_filename{}.
+
+Observing the interesting fields and values, we can see the field part_filename{} contains the two file names. an executable file 3791.exe and a PHP file agent.php
+
+
+Was this file executed on the server after being uploaded?
+
+We have found that file 3791.exe was uploaded on the server. The question that may come to our mind would be, was this file executed on the server? We need to narrow down our search query to show the logs from the host-centric log sources to answer this question.
+
+Search Query: index=botsv1 "3791.exe"
+
+Following the Host-centric log, sources were found to have traces of the executable 3791. exe.
+
+Sysmon
+WinEventlog
+fortigate_utm
+For the evidence of execution, we can leverage sysmon and look at the EventCode=1 for program execution.
+
+Reference: https://docs.microsoft.com/en-us/sysinternals/downloads/sysmon
+
+Search Query: index=botsv1 "3791.exe" sourcetype="XmlWinEventLog" EventCode=1
+
+Query Explanation: This query will look for the process Creation logs containing the term "3791.exe" in the logs.
+
+
+
+
+
+
+
