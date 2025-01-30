@@ -258,7 +258,124 @@ NTUSER.DAT\Software\Microsoft\Windows\CurrentVersion\Explorer\WordWheelQuery
 Here is how the TypedPaths key looks like in Registry Explorer:
 
 
+A storage device in a computer system, for example, a hard disk drive or a USB device, is just a collection of bits. To convert these bits into meaningful information, they need to be organized. For this purpose, computer scientists and engineers have created different file systems that organize the bits in a hard drive as per a standard, so that information stored in these bits can be interpreted easily.
 
+The File Allocation Table (FAT):
+The File Allocation Table (FAT) is one of these file systems. It has been the default file system for Microsoft Operating Systems since at least the late 1970s and is still in use, though not the default anymore. As the name suggests, the File Allocation Table creates a table that indexes the location of bits that are allocated to different files. If you are interested in the history of the FAT file system, you can head to the Wikipedia page for it.
+
+Data structures of the FAT file system:
+The FAT file system supports the following Data structures:
+
+Clusters:
+A cluster is a basic storage unit of the FAT file system. Each file stored on a storage device can be considered a group of clusters containing bits of information.
+
+Directory:
+A directory contains information about file identification, like file name, starting cluster, and filename length.
+
+File Allocation Table:
+The File Allocation Table is a linked list of all the clusters. It contains the status of the cluster and the pointer to the next cluster in the chain.
+
+In summary, the bits that make up a file are stored in clusters. All the filenames on a file system, their starting clusters, and their lengths are stored in directories. And the location of each cluster on the disk is stored in the File Allocation Table. We can see that we started with a raw disk composed of bits and organized it to define what group of bits refers to what file stored on the disk.
+
+The exFAT file system:
+As the file sizes have grown, especially with higher resolution images and videos being supported by the newer digital cameras, the maximum file size limit of FAT32 became 
+a substantial limiting factor for camera manufacturers. Though Microsoft had moved on to the NTFS file system, it was not suitable for digital media devices as they did not 
+need the added security features and the overhead that came with it. Therefore, these manufacturers lobbied Microsoft to create the exFAT file system.
+
+The exFAT file system is now the default for SD cards larger than 32GB. It has also been adopted widely by most manufacturers of digital devices.
+The exFAT file system supports a cluster size of 4KB to 32MB. It has a maximum file size and a maximum volume size of 128PB (Petabytes). It also reduces 
+some of the overheads of the FAT file system to make it lighter and more efficient. It can have a maximum of 2,796,202 files per directory.
+
+
+The NTFS file system
+As observed in the previous task, the FAT file system is a very basic file system. It does the job when it comes to organizing our data, but it offers little more in terms of security, reliability, and recovery capabilities. It also has certain limitations when it comes to file and volume sizes. Hence, Microsoft developed a newer file system called the New Technology File System (NTFS) to add these features. This file system was introduced in 1993 with the Windows NT 3.1. However, it became mainstream since Windows XP. The NTFS file system resolves many issues present in the FAT file system and introduces a lot of new features. We will discuss some of the features below.
+
+Journaling
+The NTFS file system keeps a log of changes to the metadata in the volume. This feature helps the system recover from a crash or data movement due to defragmentation. This log is stored in $LOGFILE in the volume's root directory. Hence the NTFS file system is called a journaling file system.
+
+Access Controls
+The FAT file system did not have access controls based on the user. The NTFS file system has access controls that define the owner of a file/directory and permissions for each user.
+
+Volume Shadow Copy
+The NTFS file system keeps track of changes made to a file using a feature called Volume Shadow Copies. Using this feature, a user can restore previous file versions for recovery or system restore. In recent ransomware attacks, ransomware actors have been noted to delete the shadow copies on a victim's file systems to prevent them from recovering their data.
+
+Alternate Data Streams
+A file is a stream of data organized in a file system. Alternate data streams (ADS) is a feature in NTFS that allows files to have multiple streams of data stored in a single file. Internet Explorer and other browsers use Alternate Data Streams to identify files downloaded from the internet (using the ADS Zone Identifier). Malware has also been observed to hide their code in ADS.
+
+Master File Table
+Like the File Allocation Table, there is a Master File Table in NTFS. However, the Master File Table, or MFT, is much more extensive than the File Allocation Table. It is a structured database that tracks the objects stored in a volume. Therefore, we can say that the NTFS file system data is organized in the Master File Table. From a forensics point of view, the following are some of the critical files in the MFT:
+
+$MFT
+The $MFT is the first record in the volume. The Volume Boot Record (VBR) points to the cluster where it is located. $MFT stores information about the clusters where all other objects present on the volume are located. This file contains a directory of all the files present on the volume.
+
+$LOGFILE
+The $LOGFILE stores the transactional logging of the file system. It helps maintain the integrity of the file system in the event of a crash.
+
+$UsnJrnl
+It stands for the Update Sequence Number (USN) Journal. It is present in the $Extend record. It contains information about all the files that were changed in the file system and the reason for the change. It is also called the change journal.
+
+MFT Explorer
+MFT Explorer is one of Eric Zimmerman's tools used to explore MFT files. It is available in both command line and GUI versions. We will be using the CLI version for this task.
+
+Start the machine attached with the task. It will open in the split view. If preferred, login to the machine through RDP using the following credentials:
+
+
+MFTECmd.exe -f <path-to-$MFT-file> --csv <path-to-save-results-in-csv>
+
+MFTECmd.exe
+
+
+
+C:\Users\THM-4n6\Desktop\EZtools>MFTECmd.exe -f C:\Users\THM-4n6\Desktop\triage\C\$Boot --csv C:\Users\THM-4n6\Desktop
+
+
+
+
+Windows Prefetch files
+When a program is run in Windows, it stores its information for future use. This stored information is used to load the program quickly in case of frequent use. This information is stored in prefetch files which are located in the C:\Windows\Prefetch directory.
+
+un Prefetch Parser on a file and save the results in a CSV, we can use the following command:
+
+PECmd.exe -f <path-to-Prefetch-files> --csv <path-to-save-csv>
+
+Similarly, for parsing a whole directory, we can use the following command:
+PECmd.exe -d <path-to-Prefetch-directory> --csv <path-to-save-csv>
+
+We can use this information to answer the questions at the end.
+
+Windows 10 Timeline
+Windows 10 stores recently used applications and files in an SQLite database called the Windows 10 Timeline. This data can be a source of information about the last executed programs. It contains the application that was executed and the focus time of the application. The Windows 10 timeline can be found at the following location:
+
+C:\Users\<username>\AppData\Local\ConnectedDevicesPlatform\{randomfolder}\ActivitiesCache.db
+
+We can use Eric Zimmerman's WxTCmd.exe for parsing Windows 10 Timeline. We get the following options when we run it:
+We can use the following command to run WxTCmd:
+
+WxTCmd.exe -f <path-to-timeline-file> --csv <path-to-save-csv>
+
+
+Windows Jump Lists
+Windows introduced jump lists to help users go directly to their recently used files from the taskbar. We can view jumplists by right-clicking an application's icon in the taskbar, and it will show us the recently opened files in that application. This data is stored in the following directory:
+
+C:\Users\<username>\AppData\Roaming\Microsoft\Windows\Recent\AutomaticDestinations
+
+Jumplists include information about the applications executed, first time of execution, and last time of execution of the application against an AppID.
+
+We can use Eric Zimmerman's JLECmd.exe to parse Jump Lists. We get the following options when we run it:
+JLECmd.exe -f <path-to-Jumplist-file> --csv <path-to-save-csv>
+
+In the folder named triage, present on the Desktop of the attached machine, we have extracted the Windows directory of a system we want to investigate. It retains the directory structure of the original Windows directory, that is, C:\Windows directory from the system is mapped on to C:\users\thm-4n6\Desktop\triage\C\Windows. Now let's use the information we have learned to perform analysis on the data saved in the folder named triage on the Desktop in the attached VM and answer the following questions.
+
+If you are having trouble viewing the CSV file, you can use EZviewer from the EZtools folder.
+
+Shortcut Files
+Windows creates a shortcut file for each file opened either locally or remotely. The shortcut files contain information about the first and last opened times of the file and the path of the opened file, along with some other data. Shortcut files can be found in the following locations:
+
+C:\Users\<username>\AppData\Roaming\Microsoft\Windows\Recent\
+
+C:\Users\<username>\AppData\Roaming\Microsoft\Office\Recent\
+
+We can use Eric Zimmerman's LECmd.exe (Lnk Explorer) to parse Shortcut files. When we run the LECmd.exe, we see the following options:
 
 
 
