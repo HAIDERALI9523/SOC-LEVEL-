@@ -57,6 +57,28 @@ the file if it got create, changed, modified, accessed.
 
 
 
+﻿Introduction to KAPE:
+Kroll Artifact Parser and Extractor (KAPE) parses and extracts Windows forensics artifacts. It is a tool that can significantly reduce the time needed to respond to an incident by providing forensic artifacts from a live system or a storage device much earlier than the imaging process completes. 
+
+KAPE serves two primary purposes, 1) collect files and 2) process the collected files as per the provided options. For achieving these purposes, KAPE uses the concept of targets and modules. Targets can be defined as the forensic artifacts that need to be collected. Modules are programs that
+process the collected artifacts and extract information from them. We will learn about them in the upcoming tasks.
+
+How it works
+KAPE is extensible and highly configurable. In essence, the KAPE binary ﻿ collects files and processes them as per the provided configuration.
+
+The collection of files (targets) KAPE adds the files to a queue and copies them in two passes. In the first pass, it copies the files that it can. This works for files that the OS has not 
+locked. The rest of the files are passed to a secondary queue. The secondary queue is processed using a different technique that uses raw disk reads to bypass the OS locks and copy the files.
+The copied files are saved with original timestamps and metadata and stored in a similar directory structure. 
+
+Once the data is collected, KAPE can process it using modules. The modules can be independent binaries that run on the collected data and process them to extract information. For example,
+KAPE will collect and copy the Prefetch file to our target destination during the target collection. Running a Prefetch Parser (PECmd) module on this target will extract the prefetch file
+and save it in a CSV fil
+
+Compound Targets:
+﻿KAPE also supports Compound Targets. These are Targets that are compounds of multiple other targets. As mentioned in the previous tasks, KAPE is often used for quick triage collection
+and analysis. The purpose of KAPE will not be fulfilled if we have to collect each artifact individually. Therefore, Compound Targets help us collect multiple targets by giving a single c
+ommand. Examples of Compound Targets include !BasicCollection, !SANS_triage and KAPEtriage. We can view the Compound Targets on the path KAPE\Targets\Compound. The following image shows what
+a Compound Target for evidence of execution looks like:
 
 
 
