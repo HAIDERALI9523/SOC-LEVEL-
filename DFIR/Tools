@@ -202,6 +202,13 @@ https://digital-forensics.sans.org/media/Poster-2015-Memory-Forensics.pdf
 https://eforensicsmag.com/finding-advanced-malware-using-volatility/
 
 
+https://docs.velociraptor.app/docs/deployment/#instant-velociraptor
+
+Velociraptor Query Language
+
+Per the official documentation, "Velociraptor’s power and flexibility comes from the Velociraptor Query Language (VQL). VQL is a framework for creating highly customized artifacts,
+which allow you to collect, query, and monitor almost any aspect of an endpoint, groups of endpoints, or an entire network. It can also be used to create continuous monitoring rules
+on the endpoint, as well as automate tasks on the server
 
 
 
