@@ -1,0 +1,112 @@
+In cyber security, memory forensics is a subset of computer forensics that analyzes volatile memory, usually on a compromised machine; in Windows OS, it corresponds to the Random Access Memory 
+(RAM), and its content is flushed with every reboot or shutdown, making it one of the usual initial task to perform during an incident. The process differs from disk forensics analysis since
+it not only provides information about what resides on the target computer but also provides us with information about the processes or applications that were running at a particular time and 
+detailed information on the execution flow on a system that may not be present in regular storage units or application logs. 
+
+During the memory acquisition phase, we'll copy the live memory to a file, commonly referred to as a dump, to perform the analysis without risking losing the data from an inadvertent reboot 
+on the compromised system and have proof of the analysis 
+inc as needed.
+
+ it captures a snapshot of a system's RAM at a specific moment, providing valuable information about the system's state, including running processes, network connections, and active data, 
+which can be crucial for diagnosing crashes, identifying malware, and investigating security incidents, especially when the system is unable to provide details through normal means due to
+its crashed state
+maging Tools
+
+There are several ways to acquire the memory from the target machine if needed; several tools can help us, but which one to use will depend on personal preference and the OS involved in the imaging task. Some of these tools are:
+
+Windows
+FTK imager, WinPmem
+Linux
+LIME
+macOS
+osxpmem
+
+Windows.cmdline
+Lists process command line arguments
+windows.drivermodule
+Determines if any loaded drivers were hidden by a rootkit
+Windows.filescan
+Scans for file objects present in a particular Windows memory image
+Windows.getsids
+Print the SIDs owning each process
+Windows.handles
+Lists process open handles
+Windows.info
+Show OS & kernel details of the memory sample being analyzed
+Windows.netscan	Scans for network objects present in a particular Windows memory image
+Widnows.netstat	Traverses network tracking structures present in a particular Windows memory image.
+Windows.mftscan
+Scans for Alternate Data Stream
+Windows.pslist
+Lists the processes present in a particular Windows memory image
+Windows.pstree
+List processes in a tree based on their parent process ID
+
+We can get information about the target using the -f switch to indicate the file to analyze, in this case, memdump.mem followed by the plugin windows.info
+used to get the general information, as in the example shown below.
+
+
+Starting the Search
+
+We can start by observing any potential network activity. We can use the plugin windows.netstat to see if there's an interesting or unusual connection. At this stage, remote access connections or access to suspicious sites are something to look for.
+
+Let's navigate to the /home/analyst directory and execute the command.
+
+vol -f memdump.mem windows.netstat
+
+With the information we have collected, we can investigate the process critical_updat  that we identified in our previous task, which has a child process called updater. Let's investigate the child process more in-depth. Let's start by looking at where on the disk it was saved; for that, we can use the plugin windows.filescan which will allow us to examine the files accessed that are stored in the memory dump. This output is quite big, so to access the data in a better way, we will use the > character in bash to redirect the output to a file, in this case, filescan_out.
+
+
+vol -f memdump.mem windows.filescan > filescan_out
+
+After executing the command, we can inspect the data by using cat and filtering using the grep command as shown below.
+
+cat filescan_out |grep updater
+
+The image shows the output of the command cat filescan_out |grep updater, highlighting the path to updater.exe
+Above, we can observe that the files have been stored in the Directory \Users\user01\Documents\updater.exe or C:\Users\user01\Documents\updater.exe
+
+If we want to have more detailed information like when the file was accessed or modified, we can use the plugin windows.mftscan.MFTScan, whose output is also quite big, so we will redirect the output to the file mftscan_out as shown below.
+
+vol -f memdump.mem windows.mftscan.MFTScan > mftscan_out
+
+We can then use the grep command again to parse the file for the appearance of updater.exe.
+
+cat mftscan_out | grep updater
+
+The image shows the output of the command cat mftscan_out | grep updater, highlighting the process updater.exe
+From the output above, we observe the last four timestamps correspond to the Created, Modified, Updated, and Accessed TimeStamps; we can take notes of those.
+
+Getting the Goods
+
+Let's get information on the process. There are several ways to examine memory, but we will continue using volatility. This time, we will dump the memory region corresponding to updater.exe , and examine it.
+
+ To accomplish the above, we'll use the plugin windows.memmap. This time, we'll specify the output dir with the -o switch. In this case, we will use the same directory denoted by the character " . "and the option --dump followed by the option --pid and the PID of the process, which in the case of updater.exe is.
+
+vol -f memdump.mem -o . windows.memmap --dump --pid 1612
+
+When the command above is finished, we will have a file with an extension .dmp in our working directory.
+
+Examining the file is difficult since it contains non-printable characters, so we'll use the strings command to analyze the output better. Since we have the file strings available to us now, we could look for key patterns like HTTP or key or any pattern that can lead us quickly to an artefact. Another way to scroll the terminal is by using the strings command piped to less to navigate through the output as the command output below.
+
+strings pid.1612.dmp |less
+
+The image shows the output of the command strings pid.1612.dump |less, highlighting an URL http://key.critical-update.com/encKEY.txt
+
+As we can observe, we immediately identified a possible key and a domain from a URL that the process may have accessed. Also, by scrolling down, we found more indications that this is a malicious process since we can find the important_document.pdf filename indicating an interaction with the file.
+
+The image display the strings output highlighting the document important_document.pdf 
+
+Great, we can infer that the process updater.exe accessed the document important_document.pdf and accessed a "key" at some point in the URL http://key.critical-update.com/encKEY.txt .
+
+If we use the command grep to look for the HTTP request that may be stored in memory, we can do it using -B and -A to look for 10 lines above and below our match to see if we can spot something else.
+
+strings pid.1612.dmp |grep -B 10 -A 10 "http://key.critical-update.com/encKEY.txt"
+
+Scrolling up, we can observe the HTTP request, as displayed.
+
+The image shows the output of the command strings pid.1612.dmp |grep -B 10 -A 10 http://key.critical-update.com/encKEY.txt
+ highlighting the URL http://key.critical-update.com/encKEY.txt
+
+From the above, we can observe at the end of the HTTP request the content of the file encKey.txt, and on the same request, we can observe data with the value cafebabe. This could be the key to encrypting the PDF used by the attacker that was not downloaded to disk.
+
