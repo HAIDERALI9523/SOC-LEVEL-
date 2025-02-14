@@ -1,0 +1,84 @@
+TheHive allows analysts from one organisation to work together on the same case simultaneously. This is due to the platform's rich feature set and integrations that support analyst workflows. The features include:
+
+Case/Task Management: Every investigation is meant to correspond to a case that has been created. Each case can be broken down into one or more tasks for added granularity and even be turned into templates for easier management. Additionally, analysts can record their progress, attach pieces of evidence or noteworthy files, add tags and other archives to cases.
+
+Alert Triage: Cases can be imported from SIEM alerts, email reports and other security event sources. This feature allows an analyst to go through the imported alerts and decide whether or not they are to be escalated into investigations or incident response.
+
+Observable Enrichment with Cortex: One of the main feature integrations TheHive supports is Cortex, an observable analysis and active response engine. Cortex allows analysts to collect more information from threat indicators by performing correlation analysis and developing patterns from the cases. More information on Cortex.
+
+Active Response: TheHive allows analysts to use Responders and run active actions to communicate, share information about incidents and prevent or contain a threat.
+
+Custom Dashboards: Statistics on cases, tasks, observables, metrics and more can be compiled and distributed on dashboards that can be used to generate useful KPIs within an organisation.
+
+Built-in MISP Integration: Another useful integration is with MISP, a threat intelligence platform for sharing, storing and correlating Indicators of Compromise of targeted attacks and other threats. This integration allows analysts to create cases from MISP events, import IOCs or export their own identified indicators to their MISP communities.
+
+Other notable integrations that TheHive supports are DigitalShadows2TH & ZeroFox2TH, free and open-source extensions of alert feeders from DigitalShadows and ZeroFox respectively. These integrations ensure that alerts can be added into TheHive and transformed into new cases using pre-defined incident response templates or by adding to existing cases.
+
+Permission
+Functions
+manageOrganisation (1)
+Create & Update an organisation
+manageConfig (1)
+Update Configuration
+manageProfile (1)
+Create, update & delete Profiles
+manageTag (1)
+Create, update & Delete Tags
+manageCustomField (1)
+Create, update & delete Custom Fields
+manageCase
+Create, update & delete Cases
+manageObservable
+Create, update & delete Observables
+manageALert
+Create, update & import Alerts
+manageUser
+Create, update & delete Users
+manageCaseTemplate
+Create, update & delete Case templates
+manageTask
+Create, update & delete Tasks
+manageShare
+Share case, task & observable with other organisations
+manageAnalyse (2)
+Execute Analyse
+manageAction (2)
+Execute Actions
+manageAnalyserTemplate (2)
+Create, update & delete Analyser Templates
+
+Severity: This showcases the level of impact the incident being investigated has on the environment from low to critical levels.
+TLP: The Traffic Light Protocol is a set of designations to ensure that sensitive information is shared with the appropriate audience. The range of colours represents a scale between full disclosure of information (White) and No disclosure/ Restricted (Red). You can find more information about the definitions on the CISA website.
+PAP:  The Permissible Actions Protocol is used to indicate what an analyst can do with the information, whether an attacker can detect the current analysis state or defensive actions in place. It uses a colour scheme similar to TLP and is part of the MISP taxonomies.
+
+
+Field	Description	Examples
+Type *:
+The observable dataType
+IP address, Hash, Domain
+Value *:
+Your observable value
+8.8.8.8, 127.0.0.1
+One observable per line:
+Create one observable per line inserted in the value field.
+
+One single multiline observable:
+Create one observable, no matter the number of lines
+Long URLs
+TLP *:
+Define here the way the information should be shared.
+
+Is IOC:
+Check if this observable is considered an Indicator of Compromise
+Emotet IP
+Has been sighted:
+Has this observable been sighted on your information system?
+
+Ignore for similarity:
+Do not correlate this observable with other similar observables.
+
+Tags **:
+Insightful information Tags.
+Malware IP; MITRE Tactics
+Description **: 
+Description of the observable
