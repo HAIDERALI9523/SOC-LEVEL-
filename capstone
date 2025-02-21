@@ -26,3 +26,5 @@ Machine Name
 Get-FileHash -Algorithm SHA256 .\capture.pcapng
       Directory: C:\Users\user\Desktop\Incident Files
 .\EvtxECmd.exe -f 'C:\Users\user\Desktop\Incident Files\sysmon.evtx' --csv 'C:\Users\user\Desktop\Incident Files' --csvf sysmon.csv
+
+
