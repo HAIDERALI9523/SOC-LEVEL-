@@ -27,4 +27,7 @@ Get-FileHash -Algorithm SHA256 .\capture.pcapng
       Directory: C:\Users\user\Desktop\Incident Files
 .\EvtxECmd.exe -f 'C:\Users\user\Desktop\Incident Files\sysmon.evtx' --csv 'C:\Users\user\Desktop\Incident Files' --csvf sysmon.csv
 
+$Events = Get-WinEvent -Path ‘C:\Users\user\Desktop\Incident Files\sysmon.evtx’ | Where-Object {($_.Properties.Value -like “*PowerShell*”) -and ($_.Properties.Value -like “*phishteam*”) -and ($_.Properties.Value -like “*first.exe*”) }
+
+
 
